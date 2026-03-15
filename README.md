@@ -10,10 +10,10 @@ larger-scale follow-up.
 ## Published Site
 
 Live report:
-`https://YOUR_USERNAME.github.io/autoresearch-scale/`
+`https://yacob-kidane.github.io/Argus/`
 
 Dashboard:
-`https://YOUR_USERNAME.github.io/autoresearch-scale/dashboard/`
+`https://yacob-kidane.github.io/Argus/dashboard/`
 
 ## Repo Structure
 
@@ -25,5 +25,4 @@ Dashboard:
 
 ## Notes Before Publishing
 
-- Replace `YOUR_USERNAME` in `docs/index.html`, `docs/dashboard/index.html`, and this file.
 - Point GitHub Pages at the `/docs` folder on `main`.
