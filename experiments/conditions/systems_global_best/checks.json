@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-03-15T18:53:22.202694+00:00",
+  "test": "global_best",
+  "checks": [
+    {
+      "name": "best_fingerprint_tracks_lowest_val_bpb",
+      "passed": true,
+      "observed": "systems-best-better"
+    },
+    {
+      "name": "best_val_bpb_is_updated",
+      "passed": true,
+      "observed": 1.0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "condition": "ab_history",
+  "proposer_policy": "history",
+  "runs": 5,
+  "best_val_bpb": 1.081134,
+  "best_absolute_improvement": 0.0,
+  "total_tflops": 227841.7152,
+  "gpu_hours": 0.4170833333333333,
+  "discovery_per_tflop": 0.0,
+  "estimated_cost_usd": 1.6683333333333332,
+  "cost_per_discovery": null,
+  "time_to_first_improvement_seconds": null,
+  "rejected_runs": 4,
+  "failed_runs": 0,
+  "duplicate_skips": 0,
+  "submitted_proposals": 5,
+  "generated_proposals": 5,
+  "promotion_records": 0,
+  "baseline_fingerprint": "ee94237956311a5dd985c062b8850e7c",
+  "best_fingerprint": "ee94237956311a5dd985c062b8850e7c"
+}

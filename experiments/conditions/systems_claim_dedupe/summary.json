@@ -1,0 +1,37 @@
+{
+  "condition": "systems_claim_dedupe",
+  "proposer_policy": "history",
+  "runs": 1,
+  "best_val_bpb": 1.1,
+  "best_absolute_improvement": 0.0,
+  "total_tflops": 0.0,
+  "gpu_hours": 0.0,
+  "discovery_per_tflop": null,
+  "estimated_cost_usd": 0.0,
+  "cost_per_discovery": null,
+  "time_to_first_improvement_seconds": null,
+  "rejected_runs": 0,
+  "failed_runs": 0,
+  "duplicate_skips": 0,
+  "submitted_proposals": 0,
+  "generated_proposals": 0,
+  "promotion_records": 0,
+  "baseline_fingerprint": "systems-claim-dedupe-fp",
+  "best_fingerprint": "systems-claim-dedupe-fp",
+  "checks": [
+    {
+      "name": "first_claim_succeeds",
+      "passed": true
+    },
+    {
+      "name": "duplicate_claim_blocked",
+      "passed": true
+    },
+    {
+      "name": "completed_fingerprint_not_reclaimable",
+      "passed": true
+    }
+  ],
+  "checks_passed": 3,
+  "checks_failed": 0
+}

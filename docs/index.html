@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoResearch at Scale</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="eyebrow">Autonomous Research Infrastructure</div>
+        <h1>AutoResearch at Scale</h1>
+        <p class="subtitle">
+          Compute-aware experiment orchestration on GPU clusters, with deterministic
+          ingestion, proposal telemetry, and promotion-path verification.
+        </p>
+      </div>
+      <nav class="nav">
+        <a href="./index.html" class="nav-link active">Report</a>
+        <a href="./dashboard/index.html" class="nav-link">Dashboard</a>
+        <a href="https://github.com/YOUR_USERNAME/autoresearch-scale" class="nav-link" target="_blank" rel="noreferrer">GitHub Repo</a>
+      </nav>
+    </header>
+
+    <section class="hero panel">
+      <div class="hero-copy">
+        <div class="section-label">Overview</div>
+        <h2>Infrastructure first, evidence second</h2>
+        <p>
+          AutoResearch is a shared-state orchestration system for ML experiments on SLURM clusters.
+          It proposes new runs, prevents duplicate work through file-backed claims, ingests structured
+          training results exactly once, tracks a global best record, and optionally escalates promising
+          runs into a second-stage promotion hook.
+        </p>
+        <p>
+          The central thesis is simple: research search quality should be measured against
+          <strong>compute spent</strong>, not just raw model quality.
+        </p>
+      </div>
+      <div class="summary-grid">
+        <div class="stat-card">
+          <div class="stat-label">A/B Matrix</div>
+          <div class="stat-value">5 vs 5</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Systems Tests</div>
+          <div class="stat-value">7 / 7</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Promotion Path</div>
+          <div class="stat-value">Verified</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cluster Harness</div>
+          <div class="stat-value">SLURM</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Motivation</div>
+      <h2>Why build autonomous experiment infrastructure?</h2>
+      <p>
+        Manual hyperparameter tuning wastes scarce GPU time, hides duplicate work, and makes it hard
+        to reason about search efficiency as a first-class system property. AutoResearch reframes this
+        as a controlled loop: propose, claim, execute, evaluate, update shared state, and optionally
+        promote.
+      </p>
+      <p>
+        The project aims to answer a systems question before a modeling question:
+        can an autonomous loop safely coordinate experiment search, preserve evidence, and quantify
+        discovery per unit of compute?
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Architecture</div>
+      <h2>System design</h2>
+      <div class="code-block">proposal_engine
+    ↓
+orchestrator
+    ↓
+SLURM runner
+    ↓
+train.py
+    ↓
+write_result.py
+    ↓
+shared state layer
+(results.jsonl / claimed.json / global_best.json / promoted.jsonl)
+    ↓
+promotion hook (Tinker)</div>
+
+      <div class="two-col">
+        <div>
+          <h3>Core components</h3>
+          <ul>
+            <li><strong>Proposal engine:</strong> emits one concrete next experiment from objective, prior outcomes, and policy mode.</li>
+            <li><strong>Orchestrator:</strong> fingerprints candidates, acquires claims, submits jobs, and advances the control loop.</li>
+            <li><strong>SLURM runner:</strong> renders deterministic job scripts and ships training to the cluster.</li>
+            <li><strong>Ingestion layer:</strong> parses terminal metrics, computes reward, appends result records, and updates the best register.</li>
+            <li><strong>Promotion hook:</strong> validates whether a run should escalate to a larger-scale Tinker check.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Shared state contracts</h3>
+          <ul>
+            <li><code>results.jsonl</code> stores append-only terminal experiment records.</li>
+            <li><code>claimed.json</code> prevents duplicate execution across workers.</li>
+            <li><code>global_best.json</code> records the best known run under lock.</li>
+            <li><code>promoted.jsonl</code> stores promotion decisions and downstream outcomes.</li>
+            <li><code>proposal_events.jsonl</code> captures generated, skipped, rejected, and submitted proposal lifecycle events.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Experiment Loop</div>
+      <h2>How one experiment moves through the system</h2>
+      <ol class="ordered">
+        <li>The proposer reads the current objective, prior results, and shared best state.</li>
+        <li>It emits a hypothesis, config diff, reasoning trace, and deterministic fingerprint.</li>
+        <li>The orchestrator claims the fingerprint or skips it if already completed or in flight.</li>
+        <li>A SLURM job runs training and emits a structured metrics block to stdout.</li>
+        <li><code>write_result.py</code> ingests the terminal record and computes reward as improvement per TFLOP.</li>
+        <li>The shared best register is updated if the new run is strictly better.</li>
+        <li>If promotion criteria are met, the Tinker scale-up hook is attempted and logged.</li>
+      </ol>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Reward &amp; Gates</div>
+      <h2>Evaluation logic</h2>
+      <p>The core efficiency metric is compute-aware:</p>
+      <div class="code-block">reward = (baseline_val_bpb - current_val_bpb) / total_tflops_consumed</div>
+      <p>
+        This turns model improvement into a research-efficiency signal. The system then layers on
+        explicit gates for result status, best-run registration, and promotion threshold checks.
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Methodology</div>
+      <h2>Controlled experiment matrix</h2>
+
+      <h3>Systems correctness</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Root</th>
+              <th>Checks</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>systems_claim_dedupe</code></td>
+              <td>3 / 3</td>
+              <td>passed</td>
+            </tr>
+            <tr>
+              <td><code>systems_concurrency</code></td>
+              <td>2 / 2</td>
+              <td>passed</td>
+            </tr>
+            <tr>
+              <td><code>systems_global_best</code></td>
+              <td>2 / 2</td>
+              <td>passed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>A/B proposer comparison</h3>
+      <p>
+        Two isolated condition roots were run under the same serialized harness: a baseline proposer and
+        a history-aware proposer. The first successful run in each arm served as that arm’s seed baseline.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Runs</th>
+              <th>Best val_bpb</th>
+              <th>Total TFLOPs</th>
+              <th>GPU Hours</th>
+              <th>Generated</th>
+              <th>Submitted</th>
+              <th>Duplicate Skips</th>
+              <th>Failed Runs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>ab_baseline</code></td>
+              <td>5</td>
+              <td>1.081322</td>
+              <td>227865.62304</td>
+              <td>0.41722</td>
+              <td>6</td>
+              <td>5</td>
+              <td>1</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td><code>ab_history</code></td>
+              <td>5</td>
+              <td>1.081134</td>
+              <td>227841.7152</td>
+              <td>0.41708</td>
+              <td>5</td>
+              <td>5</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Promotion path</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Runs</th>
+              <th>Promotion Records</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>promotion_normal</code></td>
+              <td>2</td>
+              <td>0</td>
+              <td>no promotion under the real threshold</td>
+            </tr>
+            <tr>
+              <td><code>promotion_forced</code></td>
+              <td>2</td>
+              <td>1</td>
+              <td>promotion record written; Tinker attempted and failed on network resolution</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Results</div>
+      <h2>What the matrix actually showed</h2>
+      <p>
+        The matrix validated the infrastructure: isolated condition roots, proposal event logging,
+        clean ingestion, summary generation, and both promotion-path branches all worked under the fixed harness.
+      </p>
+      <p>
+        It did <strong>not</strong> yet validate proposer superiority. Under the controlled 5-vs-5 budget,
+        neither proposer arm produced a proposer-driven discovery beyond its own seed baseline.
+        The history-aware arm finished with a slightly lower best validation score, but that best run was still the
+        seed baseline for that condition.
+      </p>
+      <div class="callout">
+        <strong>Clean interpretation:</strong>
+        v1 proves the orchestration and experiment-accounting pipeline. It does not yet prove that
+        history-aware proposals outperform the baseline policy under this small search budget.
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Visibility</div>
+      <h2>What v1 added beyond a plain runner</h2>
+      <ul>
+        <li><strong>History-aware proposal mode</strong> as a runtime flag, persisted with results and proposal events.</li>
+        <li><strong>Reasoning traces</strong> captured in append-only JSONL for post-hoc inspection.</li>
+        <li><strong>Experiment archaeology</strong> to visualize search trajectory and best-run changes.</li>
+        <li><strong>Per-condition summaries</strong> for reproducible evidence and lightweight reporting.</li>
+        <li><strong>Promotion verification</strong> in both normal and forced-threshold modes.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Takeaways</div>
+      <h2>What v1 proves</h2>
+      <ul>
+        <li>Distributed experiment coordination works reliably without a database.</li>
+        <li>File-backed claims and shared best updates behave correctly under isolated systems tests.</li>
+        <li>Terminal training results ingest exactly once and produce stable summary artifacts.</li>
+        <li>Proposal telemetry is now rich enough to compare generated, submitted, and skipped work.</li>
+        <li>The promotion path is verified end-to-end, including explicit forced-path coverage.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Future Work</div>
+      <h2>Where v2 should go</h2>
+      <ul>
+        <li>Run larger proposer budgets or broader search spaces so proposer quality can be evaluated more meaningfully.</li>
+        <li>Pin shared baselines and seeds across conditions to reduce cross-arm variance.</li>
+        <li>Feed promotion outcomes back into proposal generation instead of treating them as terminal side effects.</li>
+        <li>Improve Tinker connectivity so the forced promotion path ends in a real scale-up rather than a logged network failure.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">Explore</div>
+      <h2>Links</h2>
+      <div class="link-grid">
+        <a class="link-card" href="./dashboard/index.html">
+          <div class="link-title">Open Dashboard Snapshot</div>
+          <div class="link-text">Inspect the shared-state snapshot, current best run, reasoning traces, archaeology, and formal A/B comparison metrics.</div>
+        </a>
+        <a class="link-card" href="https://github.com/YOUR_USERNAME/autoresearch-scale" target="_blank" rel="noreferrer">
+          <div class="link-title">Open Repository</div>
+          <div class="link-text">Browse the orchestrator, schemas, experiment harness, and published `docs/` site source.</div>
+        </a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

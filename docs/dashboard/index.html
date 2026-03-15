@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoResearch Dashboard Snapshot</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Published Snapshot</div>
+        <h1>AutoResearch Dashboard</h1>
+        <div class="topbar-sub">Shared-state snapshot plus formal A/B matrix summaries</div>
+      </div>
+      <div class="topbar-side">
+        <nav class="nav">
+          <a href="../index.html" class="nav-link">Report</a>
+          <a href="./index.html" class="nav-link active">Dashboard</a>
+          <a href="https://github.com/YOUR_USERNAME/autoresearch-scale" class="nav-link" target="_blank" rel="noreferrer">GitHub Repo</a>
+        </nav>
+        <div class="topbar-meta">
+          <span class="live-dot"></span>
+          <span class="live-label">Snapshot</span>
+          <span id="last-refresh">—</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <div class="card stat-card">
+        <div class="stat-label hover-help" data-tooltip="Experiments claimed by a worker and not yet fully ingested. The published snapshot should normally show zero.">Active Claims <span class="help-dot">?</span></div>
+        <div class="stat-value" id="claims-count">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label hover-help" data-tooltip="All terminal experiment records included in the public snapshot, including kept, rejected, and failed runs.">Completed Runs <span class="help-dot">?</span></div>
+        <div class="stat-value" id="results-count">0</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label hover-help" data-tooltip="Lowest validation bits-per-byte observed in the shared-state snapshot. Lower is better.">Best val_bpb <span class="help-dot">?</span></div>
+        <div class="stat-value" id="best-val">—</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-label hover-help" data-tooltip="Promotion records present in the published snapshot data.">Promotions <span class="help-dot">?</span></div>
+        <div class="stat-value" id="promotions-count">0</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="hover-help" data-tooltip="Compute-aware summary metrics derived from successful runs in the published shared-state snapshot.">Research Efficiency <span class="help-dot">?</span></h2>
+      </div>
+      <div class="panel-body">
+        <div class="efficiency-grid">
+          <div class="card stat-card">
+            <div class="stat-label hover-help" data-tooltip="Validation bits-per-byte from the first successful run in the snapshot.">Baseline val_bpb <span class="help-dot">?</span></div>
+            <div class="stat-value efficiency-value" id="baseline-val">—</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label hover-help" data-tooltip="Absolute improvement from the snapshot baseline to the best successful run.">Best Δval_bpb <span class="help-dot">?</span></div>
+            <div class="stat-value efficiency-value" id="best-improvement">—</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label hover-help" data-tooltip="Estimated total training compute consumed by successful runs in the snapshot, measured in TFLOPs.">Total TFLOPs <span class="help-dot">?</span></div>
+            <div class="stat-value efficiency-value" id="total-tflops">—</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label hover-help" data-tooltip="Improvement divided by total TFLOPs. Higher means more quality gained per unit of compute.">Discovery / TFLOP <span class="help-dot">?</span></div>
+            <div class="stat-value efficiency-value" id="discovery-efficiency">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="hover-help" data-tooltip="Formal proposer comparison from the completed isolated A/B matrix, not placeholders.">Search Policy Comparison <span class="help-dot">?</span></h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Policy</th>
+              <th>Runs</th>
+              <th>Total TFLOPs</th>
+              <th>GPU Hours</th>
+              <th>Best val_bpb</th>
+              <th>Improvement</th>
+              <th>Discovery / TFLOP</th>
+              <th>Est. Cost</th>
+              <th>Cost / Discovery</th>
+            </tr>
+          </thead>
+          <tbody id="policy-comparison-body">
+            <tr><td colspan="9" class="empty-row">No policy comparison yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="two-col">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="hover-help" data-tooltip="Best successful run currently registered in the published shared-state snapshot.">Current Best <span class="help-dot">?</span></h2>
+        </div>
+        <div id="current-best" class="panel-body empty-state">No best run yet</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="hover-help" data-tooltip="Runs reserved or submitted by workers and still in flight. For this snapshot, this should usually be empty.">Active Claims <span class="help-dot">?</span></h2>
+        </div>
+        <div id="active-claims" class="panel-body empty-state">No active claims</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="hover-help" data-tooltip="Newest proposal rationale captured in the published reasoning log.">Latest Agent Reasoning <span class="help-dot">?</span></h2>
+      </div>
+      <div class="panel-body" id="latest-reasoning">
+        <div class="empty-state">No reasoning trace yet</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="hover-help" data-tooltip="Chronological card view of experiment history from the shared-state snapshot. The current best run is highlighted.">Experiment Archaeology <span class="help-dot">?</span></h2>
+      </div>
+      <div class="panel-body">
+        <div id="experiment-graph" class="trajectory-grid empty-state">No experiment history yet</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="hover-help" data-tooltip="Newest experiment outcomes first, including status, quality, reward, job ID, and timestamp.">Recent Results <span class="help-dot">?</span></h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fingerprint</th>
+              <th>Status</th>
+              <th>Outcome</th>
+              <th>val_bpb</th>
+              <th>Reward</th>
+              <th>Job</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="results-table-body">
+            <tr><td colspan="7" class="empty-row">No results yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2 class="hover-help" data-tooltip="Promotion records included in the published snapshot, including the trigger reason and downstream request status.">Promotions <span class="help-dot">?</span></h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fingerprint</th>
+              <th>Improvement</th>
+              <th>Reason</th>
+              <th>Tinker</th>
+              <th>Request ID</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="promotions-table-body">
+            <tr><td colspan="6" class="empty-row">No promotions yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

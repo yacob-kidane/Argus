@@ -1,0 +1,35 @@
+{
+  "condition": "systems_concurrency",
+  "proposer_policy": "history",
+  "runs": 0,
+  "best_val_bpb": null,
+  "best_absolute_improvement": null,
+  "total_tflops": 0,
+  "gpu_hours": 0.0,
+  "discovery_per_tflop": null,
+  "estimated_cost_usd": 0.0,
+  "cost_per_discovery": null,
+  "time_to_first_improvement_seconds": null,
+  "rejected_runs": 0,
+  "failed_runs": 0,
+  "duplicate_skips": 0,
+  "submitted_proposals": 0,
+  "generated_proposals": 0,
+  "promotion_records": 0,
+  "baseline_fingerprint": "",
+  "best_fingerprint": "",
+  "checks": [
+    {
+      "name": "exactly_one_process_claims",
+      "passed": true,
+      "observed": 1
+    },
+    {
+      "name": "one_active_claim_recorded",
+      "passed": true,
+      "observed": 1
+    }
+  ],
+  "checks_passed": 2,
+  "checks_failed": 0
+}

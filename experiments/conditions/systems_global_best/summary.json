@@ -1,0 +1,35 @@
+{
+  "condition": "systems_global_best",
+  "proposer_policy": "history",
+  "runs": 3,
+  "best_val_bpb": 1.0,
+  "best_absolute_improvement": 0.19999999999999996,
+  "total_tflops": 0.0,
+  "gpu_hours": 0.0,
+  "discovery_per_tflop": null,
+  "estimated_cost_usd": 0.0,
+  "cost_per_discovery": 0.0,
+  "time_to_first_improvement_seconds": 0,
+  "rejected_runs": 1,
+  "failed_runs": 0,
+  "duplicate_skips": 0,
+  "submitted_proposals": 0,
+  "generated_proposals": 0,
+  "promotion_records": 0,
+  "baseline_fingerprint": "systems-best-worse",
+  "best_fingerprint": "systems-best-better",
+  "checks": [
+    {
+      "name": "best_fingerprint_tracks_lowest_val_bpb",
+      "passed": true,
+      "observed": "systems-best-better"
+    },
+    {
+      "name": "best_val_bpb_is_updated",
+      "passed": true,
+      "observed": 1.0
+    }
+  ],
+  "checks_passed": 2,
+  "checks_failed": 0
+}

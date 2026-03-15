@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-03-15T18:53:19.685369+00:00",
+  "test": "claim_dedupe",
+  "checks": [
+    {
+      "name": "first_claim_succeeds",
+      "passed": true
+    },
+    {
+      "name": "duplicate_claim_blocked",
+      "passed": true
+    },
+    {
+      "name": "completed_fingerprint_not_reclaimable",
+      "passed": true
+    }
+  ]
+}
