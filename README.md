@@ -1,6 +1,7 @@
 # AutoResearch at Scale
 
-Compute-aware autonomous experiment orchestration on GPU clusters.
+Argus is a distributed system for autonomous machine learning experimentation.
+It continuously proposes, executes, evaluates, and promotes experiments across SLURM GPU clusters.
 
 AutoResearch proposes training experiments, coordinates workers through a shared
 filesystem state layer, prevents duplicate work, ingests structured results
